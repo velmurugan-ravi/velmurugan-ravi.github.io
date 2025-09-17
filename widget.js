@@ -1,16 +1,16 @@
-window.onload = function () {
+function waitForPureCloudWidgets(retries = 10) {
   if (window.PURECLOUD && PURECLOUD.WIDGETS) {
+    console.log('PURECLOUD SDK loaded. Attaching listener...');
+
     PURECLOUD.WIDGETS.on('messageReceived', function (data) {
       const customerMessage = data.message?.text;
       console.log('Customer said:', customerMessage);
 
-      // Display message in transcript
       const transcriptBox = document.getElementById('transcript');
       const line = document.createElement('div');
       line.textContent = `Customer: ${customerMessage}`;
       transcriptBox.appendChild(line);
 
-      // Mock suggestions
       const suggestions = [
         `Thanks for reaching out!`,
         `I understand your concern.`,
@@ -26,7 +26,15 @@ window.onload = function () {
         container.appendChild(div);
       });
     });
+
+  } else if (retries > 0) {
+    console.warn('PURECLOUD SDK not ready. Retrying...');
+    setTimeout(() => waitForPureCloudWidgets(retries - 1), 500);
   } else {
-    console.error('PURECLOUD SDK not loaded.');
+    console.error('PURECLOUD SDK failed to load after multiple attempts.');
   }
+}
+
+window.onload = function () {
+  waitForPureCloudWidgets();
 };
