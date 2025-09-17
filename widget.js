@@ -1,11 +1,14 @@
-window.PURECLOUD = window.PURECLOUD || {};
-PURECLOUD.WIDGETS = PURECLOUD.WIDGETS || {};
-
 PURECLOUD.WIDGETS.on('messageReceived', function (data) {
   const customerMessage = data.message.text;
   console.log('Customer said:', customerMessage);
 
-  // Placeholder: Display mock suggestions
+  // Display message in transcript
+  const transcriptBox = document.getElementById('transcript');
+  const line = document.createElement('div');
+  line.textContent = `Customer: ${customerMessage}`;
+  transcriptBox.appendChild(line);
+
+  // Mock suggestions
   const suggestions = [
     `Thanks for reaching out!`,
     `I understand your concern.`,
