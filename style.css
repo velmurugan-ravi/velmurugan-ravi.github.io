@@ -1,0 +1,16 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  background-color: #f4f4f4;
+}
+
+#suggestions {
+  margin-top: 10px;
+}
+
+.suggestion {
+  background: #e0f7fa;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
