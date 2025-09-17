@@ -14,3 +14,16 @@ body {
   margin-bottom: 5px;
   border-radius: 5px;
 }
+
+.transcript-box {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 150px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+
