@@ -1,51 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Genesys SDK Test</title>
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <title>Genesys SDK Context Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 12px;
+    }
+    h2 {
+      margin-bottom: 8px;
+    }
+    .info {
+      margin-bottom: 6px;
+      font-size: 1.1em;
+    }
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Genesys SDK Test Widget</h2>
-    <p id="status">Initializing SDK...</p>
-    <div id="context"></div>
-  </div>
+  <h2>Genesys SDK Context Test Widget</h2>
+  <div class="info"><span class="label">Conversation ID:</span> <span id="convId">Loading...</span></div>
+  <div class="info"><span class="label">Host Origin:</span> <span id="hostOrigin">Loading...</span></div>
+  <div class="info"><span class="label">Target Environment:</span> <span id="targetEnv">Loading...</span></div>
+  <div id="status" style="margin-top: 20px; color: green; font-weight: bold;">Initializing SDK...</div>
 
-  <!-- Load dependencies -->
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-  <!-- Load Genesys Client App SDK -->
-  <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.3/purecloud-client-app-sdk-de77761d.min.js"></script>
-
-  <!-- Your script: must come AFTER the SDK is loaded -->
+  <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.7/purecloud-client-app-sdk.js"></script>
   <script>
-    $(function () {
-      // Ensure SDK is available
-      if (!window.purecloud || !window.purecloud.apps) {
-        $('#status').text('❌ SDK failed to load.');
-        return;
-      }
+    // Helper to get query parameters
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param) || "null";
+    }
 
-      const queryParams = new URLSearchParams(window.location.search);
+    // Show initial values from query params (may come from Genesys environment)
+    document.getElementById('convId').textContent = getQueryParam('conversationId');
+    document.getElementById('hostOrigin').textContent = getQueryParam('gcHostOrigin');
+    document.getElementById('targetEnv').textContent = getQueryParam('gcTargetEnv');
 
-      const myClientApp = new window.purecloud.apps.ClientApp({
-        gcHostOriginQueryParam: 'gcHostOrigin',
-        gcTargetEnvQueryParam: 'gcTargetEnv'
-      });
+    // Initialize Genesys Client App SDK
+    try {
+      const app = new window.purecloud.apps.ClientApp();
 
-      $('#status').text('✅ SDK Initialized');
+      // If you want, you can do more SDK stuff here (e.g., subscribe to context events)
 
-      myClientApp.context.getContext()
-        .then(context => {
-          $('#context').html('<h4>Context:</h4><pre>' + JSON.stringify(context, null, 2) + '</pre>');
-        })
-        .catch(err => {
-          console.error('Context error:', err);
-          $('#context').html('<span class="text-danger">Error fetching context.</span>');
-        });
-    });
+      document.getElementById('status').textContent = "✅ SDK Initialized successfully";
+      document.getElementById('status').style.color = "green";
+    } catch (e) {
+      document.getElementById('status').textContent = "❌ SDK Initialization failed: " + e.message;
+      document.getElementById('status').style.color = "red";
+    }
   </script>
 </body>
 </html>
-
