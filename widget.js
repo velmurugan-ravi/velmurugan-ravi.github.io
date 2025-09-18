@@ -1,6 +1,28 @@
+function initializeClientApp() {
+  const hostQueryParamName = 'gcHostOrigin';
+  const targetEnvQueryParamName = 'gcTargetEnv';
+  const locationSearch = (window && window.location && typeof window.location.search === 'string') ? window.location.search : '';
+  const queryParams = new URLSearchParams(locationSearch);
+
+  let clientApp;
+
+  if (queryParams.get(hostQueryParamName) || queryParams.get(targetEnvQueryParamName)) {
+    clientApp = new window.purecloud.apps.ClientApp({
+      gcHostOriginQueryParam: hostQueryParamName,
+      gcTargetEnvQueryParam: targetEnvQueryParamName
+    });
+  } else {
+    clientApp = new window.purecloud.apps.ClientApp(); // fallback
+  }
+
+  return clientApp;
+}
+
 function waitForPureCloudWidgets(retries = 10) {
   if (window.PURECLOUD && PURECLOUD.WIDGETS) {
     console.log('PURECLOUD SDK loaded. Attaching listener...');
+
+    const clientApp = initializeClientApp();
 
     PURECLOUD.WIDGETS.on('messageReceived', function (data) {
       const customerMessage = data.message?.text;
