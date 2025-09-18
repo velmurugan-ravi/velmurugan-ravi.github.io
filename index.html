@@ -1,108 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Suggestion Widget</title>
+  <title>Genesys SDK Test</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.3/purecloud-client-app-sdk.min.js"></script>
+
   <style>
     body {
+      padding: 20px;
       font-family: Arial, sans-serif;
+    }
+    pre {
+      background: #f4f4f4;
       padding: 10px;
-      background-color: #f4f4f4;
-    }
-
-    #suggestions {
-      margin-top: 10px;
-    }
-
-    .suggestion {
-      background: #e0f7fa;
-      padding: 8px;
-      margin-bottom: 5px;
-      border-radius: 5px;
-    }
-
-    .transcript-box {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      height: 150px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-      font-family: monospace;
-      white-space: pre-wrap;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
+
 <body>
-  <h2>Customer Transcript</h2>
-  <div id="transcript" class="transcript-box"></div>
+  <h2>Genesys SDK Test Widget</h2>
+  <p id="status">Initializing SDK...</p>
+  <div id="context"></div>
 
-  <h2>Suggested Replies</h2>
-  <div id="suggestions"></div>
-
-  <script src="https://apps.aps1.pure.cloud/widgets/9.0/widgets.min.js"></script>
   <script>
-    function initializeClientApp() {
+    $(function () {
+      const envQueryParamName = 'pcEnvironment';
       const hostQueryParamName = 'gcHostOrigin';
       const targetEnvQueryParamName = 'gcTargetEnv';
-      const locationSearch = (window && window.location && typeof window.location.search === 'string') ? window.location.search : '';
-      const queryParams = new URLSearchParams(locationSearch);
 
-      let clientApp;
+      const queryParams = new URLSearchParams(window.location.search);
+      let myClientApp;
 
       if (queryParams.get(hostQueryParamName) || queryParams.get(targetEnvQueryParamName)) {
-        clientApp = new window.purecloud.apps.ClientApp({
+        myClientApp = new window.purecloud.apps.ClientApp({
           gcHostOriginQueryParam: hostQueryParamName,
           gcTargetEnvQueryParam: targetEnvQueryParamName
         });
-      } else {
-        clientApp = new window.purecloud.apps.ClientApp(); // fallback
-      }
-
-      return clientApp;
-    }
-
-    function waitForPureCloudWidgets(retries = 10) {
-      if (window.PURECLOUD && PURECLOUD.WIDGETS) {
-        console.log('PURECLOUD SDK loaded. Attaching listener...');
-
-        const clientApp = initializeClientApp();
-
-        PURECLOUD.WIDGETS.on('messageReceived', function (data) {
-          const customerMessage = data.message?.text;
-          console.log('Customer said:', customerMessage);
-
-          const transcriptBox = document.getElementById('transcript');
-          const line = document.createElement('div');
-          line.textContent = `Customer: ${customerMessage}`;
-          transcriptBox.appendChild(line);
-
-          const suggestions = [
-            `Thanks for reaching out!`,
-            `I understand your concern.`,
-            `Let me check that for you.`
-          ];
-
-          const container = document.getElementById('suggestions');
-          container.innerHTML = '';
-          suggestions.forEach(text => {
-            const div = document.createElement('div');
-            div.className = 'suggestion';
-            div.textContent = text;
-            container.appendChild(div);
-          });
+      } else if (queryParams.get(envQueryParamName)) {
+        myClientApp = new window.purecloud.apps.ClientApp({
+          pcEnvironmentQueryParam: envQueryParamName
         });
-
-      } else if (retries > 0) {
-        console.warn('PURECLOUD SDK not ready. Retrying...');
-        setTimeout(() => waitForPureCloudWidgets(retries - 1), 500);
       } else {
-        console.error('PURECLOUD SDK failed to load after multiple attempts.');
+        myClientApp = new window.purecloud.apps.ClientApp();
       }
-    }
 
-    window.onload = function () {
-      waitForPureCloudWidgets();
-    };
+      // Set status
+      $('#status').text('✅ SDK Initialized');
+
+      // Get and display current context
+      myClientApp.context.getContext()
+        .then(context => {
+          $('#context').html('<h4>App Context:</h4><pre>' + JSON.stringify(context, null, 2) + '</pre>');
+        })
+        .catch(err => {
+          console.error('Error fetching context:', err);
+          $('#context').html('<span class="text-danger">Failed to get context.</span>');
+        });
+    });
   </script>
 </body>
 </html>
