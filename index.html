@@ -4,60 +4,45 @@
   <title>Genesys SDK Test</title>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Genesys SDK Test Widget</h2>
+    <p id="status">Initializing SDK...</p>
+    <div id="context"></div>
+  </div>
+
+  <!-- Load dependencies -->
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+  <!-- Load Genesys Client App SDK -->
   <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.3/purecloud-client-app-sdk.min.js"></script>
 
-  <style>
-    body {
-      padding: 20px;
-      font-family: Arial, sans-serif;
-    }
-    pre {
-      background: #f4f4f4;
-      padding: 10px;
-      border: 1px solid #ddd;
-    }
-  </style>
-</head>
-
-<body>
-  <h2>Genesys SDK Test Widget</h2>
-  <p id="status">Initializing SDK...</p>
-  <div id="context"></div>
-
+  <!-- Your script: must come AFTER the SDK is loaded -->
   <script>
     $(function () {
-      const envQueryParamName = 'pcEnvironment';
-      const hostQueryParamName = 'gcHostOrigin';
-      const targetEnvQueryParamName = 'gcTargetEnv';
-
-      const queryParams = new URLSearchParams(window.location.search);
-      let myClientApp;
-
-      if (queryParams.get(hostQueryParamName) || queryParams.get(targetEnvQueryParamName)) {
-        myClientApp = new window.purecloud.apps.ClientApp({
-          gcHostOriginQueryParam: hostQueryParamName,
-          gcTargetEnvQueryParam: targetEnvQueryParamName
-        });
-      } else if (queryParams.get(envQueryParamName)) {
-        myClientApp = new window.purecloud.apps.ClientApp({
-          pcEnvironmentQueryParam: envQueryParamName
-        });
-      } else {
-        myClientApp = new window.purecloud.apps.ClientApp();
+      // Ensure SDK is available
+      if (!window.purecloud || !window.purecloud.apps) {
+        $('#status').text('❌ SDK failed to load.');
+        return;
       }
 
-      // Set status
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const myClientApp = new window.purecloud.apps.ClientApp({
+        gcHostOriginQueryParam: 'gcHostOrigin',
+        gcTargetEnvQueryParam: 'gcTargetEnv'
+      });
+
       $('#status').text('✅ SDK Initialized');
 
-      // Get and display current context
       myClientApp.context.getContext()
         .then(context => {
-          $('#context').html('<h4>App Context:</h4><pre>' + JSON.stringify(context, null, 2) + '</pre>');
+          $('#context').html('<h4>Context:</h4><pre>' + JSON.stringify(context, null, 2) + '</pre>');
         })
         .catch(err => {
-          console.error('Error fetching context:', err);
-          $('#context').html('<span class="text-danger">Failed to get context.</span>');
+          console.error('Context error:', err);
+          $('#context').html('<span class="text-danger">Error fetching context.</span>');
         });
     });
   </script>
